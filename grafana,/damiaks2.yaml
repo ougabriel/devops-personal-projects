@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: damiaks
+spec:
+  replicas: 3
+  selector: # Define the wrapping strategy
+    matchLabels: # Match all pods with the defined labels
+      app: damiaks # Labels follow the `name: value` template
+  template: # This is the template of the pod inside the deployment
+    metadata:
+      labels:
+        app: damiaks
+    spec:
+      containers:
+        - image: ugogabriel/damiaks
+          name: damiaks
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+          ports:
+            - containerPort: 80
+              name: http

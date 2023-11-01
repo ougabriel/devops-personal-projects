@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blue-site
+  labels:
+    app: blue-site
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: blue-site
+  template:
+    metadata:
+      labels:
+        app: blue-site
+    spec:
+      containers:
+      - name:  blue-site
+        image: damsconas/blue-site
+        ports:
+        - containerPort: 80

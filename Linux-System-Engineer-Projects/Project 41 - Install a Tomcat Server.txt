@@ -1,0 +1,60 @@
+TASK - 41 INSTALL TOMCAT SERVER
+
+
+The Nautilus application development team recently finished the beta version of one of their Java-based applications, which they are planning to deploy on one of the app servers in Stratos DC. After an internal team meeting, they have decided to use the tomcat application server. Based on the requirements mentioned below complete the task:
+
+
+
+a. Install tomcat server on App Server 2 using yum.
+
+b. Configure it to run on port 8086.
+
+c. There is a ROOT.war file on Jump host at location /tmp. Deploy it on this tomcat server and make sure the webpage works directly on base URL i.e without specifying any sub-directory anything like this http://URL/ROOT .
+
+
+
+
+To install and configure Tomcat on App Server 2, deploy the ROOT.war file, and configure it to work directly on the base URL, follow these steps:
+
+1. Install Tomcat:
+   - Connect to App Server 2 using SSH.
+   - Run the following command to install Tomcat using yum:
+     ```
+     sudo yum install tomcat
+     ```
+
+2. Configure Tomcat to run on port 8086:
+   - Open the Tomcat server configuration file `/etc/tomcat/server.xml` using a text editor.
+   - Find the following line:
+     ```
+     <Connector port="8080" protocol="HTTP/1.1"
+     ```
+   - Replace `8080` with `8086`, so it looks like this:
+     ```
+     <Connector port="8086" protocol="HTTP/1.1"
+     ```
+   - Save the changes and exit the editor.
+
+3. Deploy the ROOT.war file:
+   - Copy the `ROOT.war` file from the Jump host to the Tomcat webapps directory on App Server 2 using the following command:
+     ```
+     scp /tmp/ROOT.war user@<App_Server_2_IP>:/var/lib/tomcat/webapps/
+     ```
+     Replace `<App_Server_2_IP>` with the actual IP address or hostname of App Server 2.
+
+4. Restart Tomcat:
+   - Run the following command to restart the Tomcat service:
+     ```
+     sudo systemctl restart tomcat
+     ```
+
+5. Verify the deployment:
+   - Open a web browser on your local machine and enter the following URL:
+     ```
+     http://172.238.16.11:8086/
+     or use
+     curl -i http://stapp02:8086  ```
+     Replace `<App_Server_2_IP>` with the IP address or hostname of App Server 2.
+   - If everything is configured correctly, you should see the webpage working directly on the base URL, without specifying any sub-directory.
+
+The Tomcat server is now installed and configured on App Server 2 to run on port 8086. The ROOT.war file has been deployed, and the webpage should be accessible directly on the base URL.

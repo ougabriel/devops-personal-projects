@@ -1,0 +1,142 @@
+
+TASK 1: deploy an app on kubernetes
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+DEPLOYING A NODE.JS APP ON LOCAL
+
+Install nodejs
+mkdir and cd to it
+npm init
+create a app.js file in an editor saved in the same dir
+npm install express --save (save your app and all the dependencies list such as the package.json and node_modules folder)
+node app.js  (run the app)
+load the app in your browser http://localhost:3000/
+
+
+
+
+
+
+
+------------------------------------------
+DOCKERIZING THE APPLICATION
+
+1. npm init
+2. npm install express -save
+3. node app.js  (runs the app locally)
+4. docker build -t app.js .
+5. docker run --name damiTuts-gab4 -d -p  6. 8080:8080 app.js  (to run the app from the docker local)
+or docker run -dp 8080:8080 app.js  
+--login to docker hub
+docker login -u <docker hub name>
+-- docker images (check for images locally)
+-- docker ps -a (checks for running containers locally)
+-- docker images ls (check for images remotely)             
+7. docker tag local-image:tagname new-repo:tagname    (to push to docker hub)
+docker tag getting-started YOUR-USER-NAME/getting-started
+8. docker push new-repo:tagname
+docker push YOUR-USER-NAME/getting-started
+
+------------------
+docker build -t app.js
+docker run -dp 8080:8080 app.js (to run it locally from docker)
+--login to dockerhub and create a repo
+docker tag app.js ugogabriel/damiaks:v1
+docker push ugogabriel/damiaks:v1
+
+
+
+
+-------------------------------------------
+
+DEPLOYING THE APP TO AKS
+note k8s cluster is already deployed
+
+
+1. az aks list (get a list of the resources in the aks resource group)
+or 
+az aks list --query '[].{ClusterName:name, ResourceGroup:resourceGroup}' --output table   (gets the name of the cluster and the resource group in a table format)
+2. az aks get-credentials --resource-group AKS --name dami-aks   (merges "dami-aks" as current context in /home/dammy/.kube/config)
+3. kubectl get nodes  (to see the number of nodes in it the cluster and also to confirm if it is connected)
+
+note: login to both docker reg and ACR
+
+4. docker tag app.js aksgabreg.azurecr.io/gab-repo:latest  (login to docker and tag the image with aks registry and specify a repo you want it in)
+5. docker push aksgabreg.azurecr.io/gab-repo:latest
+  (pushes the image to the ask repo in the registry)
+6. 
+
+
+
+
+--------------------------
+DEPLOY INGRESS CONTROLLER AND SERVICE easily
+
+1. kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.0/deploy/static/provider/cloud/deploy.yaml
+
+2. create a service yaml file for the app
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: my-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+
+3. kubectl expose deploy damiaks --type=LoadBalancer --port=80 --target-port=8080
+or 
+kubectl expose deployment my-app --type=NodePort --port=80 --target-port=8080
+
+
+
+
+
+----------------------------------------------------------
+
+webpage: https://spacelift.io/blog/kubernetes-ingress
+
+https://github.com/kubernetes/ingress-nginx/blob/main/docs/deploy/index.md
+
+
+
+
+
+-----------------------------------
+
+az aks create \
+    --resource-group AKS \
+    --name dami-aks \
+    --node-count 2 \
+    --enable-addons http_application_routing \
+    --generate-ssh-keys \
+    --node-vm-size Standard_B2s \
+    --network-plugin azure
+
+
+az aks nodepool add \
+    --resource-group AKS \
+    --cluster-name dami-aks \
+    --name dami-tuts-app3\
+    --node-count 2 \
+    --enable-addons http_application_routing \
+    --generate-ssh-keys \
+    --node-vm-size Standard_B2s \
+    --network-plugin azure
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+TASK 2:  deploy metrics server and grafana
+
+kubectl get deployments --all-namespaces | grep metrics-server
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+kubectl get deployments -n kube-system metrics-server
+kubectl get pods -n kube-system | grep metrics-server
+kubectl top pods
+
+

@@ -1,0 +1,86 @@
+The Nautilus DevOps team is ready to launch a new application, which they will deploy on app servers in Stratos Datacenter. They are expecting significant traffic/usage of haproxy on app servers after that. This will generate massive logs, creating huge log files. To utilise the storage efficiently, they need to compress the log files and need to rotate old logs. Check the requirements shared below:
+
+
+
+a. In all app servers install haproxy package.
+
+b. Using logrotate configure haproxy logs rotation to monthly and keep only 3 rotated logs.
+
+(If by default log rotation is set, then please update configuration as needed)
+
+To install the haproxy package and configure log rotation for haproxy logs, you can follow these steps:
+
+1. Install haproxy package on all app servers:
+   ```shell
+   sudo yum install haproxy
+   ```
+
+2. Configure log rotation for haproxy logs:
+   - Open the logrotate configuration file for haproxy using a text editor:
+     ```shell
+     sudo vi /etc/logrotate.d/haproxy
+     ```
+
+   - Add the following configuration to the file:
+     ```
+     /var/log/haproxy.log {
+         monthly
+         rotate 3
+         compress
+         missingok
+         notifempty
+         create 0644 root root
+     }
+     ```
+
+     Explanation of the configuration options:
+     - `monthly`: Rotate the logs monthly.
+     - `rotate 3`: Keep only 3 rotated logs.
+     - `compress`: Compress the rotated logs.
+     - `missingok`: Ignore missing log files.
+     - `notifempty`: Do not rotate the log if it's empty.
+     - `create 0644 root root`: Create new log files with the specified permissions and ownership.
+
+   - Save and close the file.
+
+3. Test the log rotation configuration:
+   You can manually trigger log rotation for haproxy logs to verify that it's working as expected. Run the following command:
+   ```shell
+   sudo logrotate -f /etc/logrotate.d/haproxy
+   ```
+
+   This will force log rotation for haproxy logs based on the configured settings.
+
+With these steps, you have installed the haproxy package on all app servers and configured log rotation for haproxy logs to occur monthly, keeping only 3 rotated logs. The logs will be compressed to save storage space efficiently.
+
+
+
+-------------------
+
+
+To confirm that the log rotation for haproxy logs is working correctly, you can follow these steps:
+
+1. Check the log directory:
+   ```shell
+   ls /var/log/
+   ```
+
+   Look for the rotated haproxy log files. They typically have a timestamp or a number appended to their names, indicating that they have been rotated.
+
+2. View the contents of the rotated log files:
+   ```shell
+   cat /var/log/haproxy.log-1
+   cat /var/log/haproxy.log-2
+   ```
+   Replace the filenames with the actual rotated log file names you found in step 1.
+
+   This will display the contents of the rotated log files. Ensure that the logs are in the expected format and contain the desired information.
+
+3. Verify the number of rotated log files:
+   ```shell
+   ls /var/log/haproxy.log-*
+   ```
+
+   Count the number of rotated log files present. It should match the number specified in the logrotate configuration (in this case, 3).
+
+By following these steps, you can confirm that the log rotation for haproxy logs is functioning properly. You should see rotated log files with the correct content, and the number of rotated logs should match the configuration.
